@@ -1,0 +1,11 @@
+### ignore everything
+*
+### no wait, not these ones
+!*.sh
+!*.awk
+!*.py
+!.gitignore
+!.gitattributes
+!.editorconfig
+### herpaderp
+!*/
