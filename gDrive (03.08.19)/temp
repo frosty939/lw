@@ -1,0 +1,60 @@
+Hello,
+
+Our Guardian Backup System has notified us that your Guardian backups are over quota for the following server.
+
+Hostname: host-01.24sevensites.com
+
+Please be aware, that due to this situation, backups have stopped and will not continue until we have heard from you regarding this ticket.
+
+This situation can occur due to one of the following.
+1. Your server contains too much data for the quota you are subscribed for.
+2. The amount of data changing between incremental backups has caused the total space used to reach your quota.
+
+This can be corrected by doing one of the following.
+[Option 1] Upgrading your Guardian Quota
+
+Your Current Package: 500GB Storage
+Total Price: 0/month
+
+The next size package that you would need to resolve the current issue.
+1TB Storage Total price: $50/month
+2TB Storage Total price: $150/month
+3TB Storage Total price: $250/month
+5TB Storage Total price: $400/month
+
+[Option 2] Removing excess data on your server, purging old data and starting a fresh set of backups.
+Below you will find a list of files and directories that are taking up a large amount of space and may wish to investigate to save some space.
+
+27.6 GiB -- /root/10000mb.bin		(created in 2018 June, likely for testing bandwidth)
+9.3 GiB -- /root/10000mb.bin.1	(created in 2018 June, likely for testing bandwidth)
+
+347.5 GiB -- /home
+7.1 GiB -- /home/backup-9.2.2017_07-16-58_zooworld.tar.gz
+59.1 GiB -- /home/wwwcootersplace
+20.5 GiB -- /home/wwwcootersplace/backup-10.26.2017_13-10-31_wwwcootersplace.tar.gz
+32.8 GiB -- /home/wwwcootersplace/public_html
+14.9 GiB -- /home/wwwcootersplace/public_html/ai1wm-backups/cootersplace.com-20180614-194018-556.wpress
+11.0 GiB -- /updraft
+1.8 GiB -- /updraft/backup_2018-07-12-1847_Cooters_fc7884d5c641-db.gz
+1.8 GiB -- /updraft/backup_2018-07-05-1847_Cooters_01670714719b-db.gz
+1.8 GiB -- /updraft/backup_2018-06-28-1847_Cooters_c814dc487482-db.gz
+1.8 GiB -- /updraft/backup_2018-06-21-1847_Cooters_c24c2123b607-db.gz
+
+24.4 GiB -- /home/d3admin
+15.8 GiB -- /home/d3admin/mail
+7.4 GiB -- /home/d3admin/mail.zip
+
+12.0 GiB -- /home/rbcs/public_html/oldsite
+
+# The files inside a '.trash' directory are deleted using the cPanel File Manager. And are generally safe to remove as long as you know you no longer need them.
+9.7 GiB --  /home/agency850dev/.trash
+8.3 GiB --  /home/riptides/.trash
+2.3 GiB --  /home/wwwcootersplace/.trash
+924 MiB --  /home/sishuttle/.trash
+
+
+Please let us know how you would like to proceed. It is our intention to get this situation resolved for you as quickly as possible. Please keep in mind that while your account is over quota, backups will not be completed.
+
+This is also a good time to review your backups to make sure that your backups are setup the way you would like them. If you would like us to check please provide a list of the partitions you would like backed up from your server and we will happily check for you.
+
+If you have any further questions or concerns, please don't hesitate to let me know. Thank you.

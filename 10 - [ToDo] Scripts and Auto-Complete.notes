@@ -1,0 +1,42 @@
+API Info
+https://billing.int.liquidweb.com/mysql/content/admin/api/internal/docs/bleed/index.mhtml
+=================================================
+------------------- Scripts ---------------------
+=================================================
+	### wait for ip, then ping til canceled, then wait for ip again
+
+	### WHM login for X account ###
+		## (?) so you dont have to deal with waiting for billing to load
+		# this might be solved already by SFA
+
+	### stormvgaconsole ###
+		## so you can do what ever it wants.. easier..? ##
+
+	### disk usage investigation ###
+		#find backup/trash/etc files that can be cleaned up
+		#look for last used by
+		#file types
+
+	### rolling check on POST/GET per domain throughout the day ###
+
+
+=================================================
+---------------- Auto-Complete ------------------
+=================================================
+	### whoowns ###
+		# check /home/ for users 						(typically also a domain)
+		# make sure the dir/file is owned by itself 	(sanity check 1)
+
+
+=================================================
+------------------- hotkeys ---------------------
+=================================================
+	### monshot take screenshot ###
+		#or use xdotool maybe?
+
+	### check for sonar ###
+
+=================================================
+-------------- Quick Responses ------------------
+=================================================
+	### Replication + Creds ###
