@@ -6,32 +6,34 @@
 #-----------------------------------
 ### sets the save location
 (
-	info1="/home/$(hostname)-$(date +"%F-%T".txt)"
-	blue="\033[34m"
-	clr="\033[0m"
+	clear;
+	info1="/home/$(hostname)-$(date +"%F-%T".txt)";
+	blue="\033[34m";
+	red="\033[31m";
+	clr="\033[0m";
 	#gap="$(printf '=%.0s' {1..40})"
 	gap="$blue$(printf %60s |tr " " "=")$clr"
 	### lets me null stuff without repeating it everywhere
-	function nul(){ "$@" 2>/dev/null ; }
+	function nul(){ "$@" 2>/dev/null;};
 
-	echo -e "\n[Hostname]  $(hostname)
-		\n[      OS] $(nul cat /etc/redhat-release || (hostnamectl |awk -F: '/Op/{print $(NF)}'))
-		\n[   Cores]  $(nproc)\n$gap
-		\n$(w |tail -n +2)\n
+	echo -e "
+		\n$gap\nGeneral\n$gap
+		[Hostname]  $(hostname)
+		[      OS] $(nul cat /etc/redhat-release || (hostnamectl |awk -F: '/Op/{print $(NF)}'))
+		[   Cores]  $(nproc)\n$gap
+		  $(w |tail -n +2)\n
 		\n$gap\nMemory\n$gap\n$(nul free -h || free -m)
 		\n\n$(df -h| grep -v tmpfs)
 		\n\nApache info:
 		\nEA4: $(if [ -f /etc/cpanel/ea4/is_ea4 ]; then echo 'Yes'; else echo 'No'; fi)
 		\n$(httpd -V|head -9|grep -E '(version|built|MPM)')
-	
-	
+		
 		\n\nPHP info: 
 	
 		\n$(/usr/local/cpanel/bin/rebuild_phpconf --current)
-	
-	
+		
 		\n\nMySQL info:"
-
+)
 	# printf "
 	# 	$(
 	# 	echo -e "\nMysql Mem configured settings: " && awk '/(key|i.*b)_b.*r_(pool_)?(s.*|.*es)/{sub("="," "); print $1,$2}' /etc/my.cnf && 
@@ -56,7 +58,7 @@
 	# echo -e "\nVirtualhost files: " ;
 	# echo $(find  /usr/local/apache/conf/includes/ -name 'pre*' -name '*.conf' ! -name 'error*' -size +0) ;
 	# sed "s/\/usr/\\n\/usr/g" $info1
-)
+
 
 
 

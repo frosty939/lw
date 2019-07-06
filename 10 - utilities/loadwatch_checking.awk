@@ -3,27 +3,29 @@
 ######## Original Readable #########################################################
 ####################################################################################
 # need to fix the column width of the load values
-# doesn't appear to be coloring things correctly..
+# need to sort the results.. completely random(ish) at this points
 ####################
-(find /root/loadwatch/ /var/log/loadwatch/ -name "*$(date +%Y-%m-%d)*" -exec awk -v cores=$(nproc) \
+(find /root/loadwatch/ /var/log/loadwatch/ -name "*$(date +%Y-%m-%d)*" -o -name "*$(date -d yesterday +%Y-%m-%d)*" -exec awk \ 
+	-F",| " \
+	-v cores=$(nproc) \
 	-v red="\033[31m" \
 	-v orange="\033[33m" \
 	-v green="\033[32m" \
 	-v fresh="\033[0m" \
  	'/^top.+load average/{
-		if($(NF-2) > cores * 1.5)
-			$1=red$(NF-2)fresh
-		else if($(NF-2) > cores && $(NF-2) <= cores * 1.5)
-			$1=orange$(NF-2)fresh
-		else if($(NF-2) < cores)
-			$1=green$(NF-2)fresh
+		if($(NF-4) > cores * 1.5)
+			$1=red$(NF-4)fresh
+		else if($(NF-4) > cores && $(NF-4) <= cores * 1.5)
+			$1=orange$(NF-4)fresh
+		else if($(NF-4) < cores)
+			$1=green$(NF-4)fresh
 		
-		if($(NF-1) > cores * 1.5)
-			$2=red$(NF-1)fresh
-		else if($(NF-1) > cores && $(NF-1) <= cores * 1.5)
-			$2=orange$(NF-1)fresh
-		else if($(NF-1) < cores)
-			$2=green$(NF-1)fresh
+		if($(NF-2) > cores * 1.5)
+			$2=red$(NF-2)fresh
+		else if($(NF-2) > cores && $(NF-2) <= cores * 1.5)
+			$2=orange$(NF-2)fresh
+		else if($(NF-2) < cores)
+			$2=green$(NF-2)fresh
 		
 		if($(NF-0) > cores * 1.5)
 			$3=red$(NF-0)fresh
@@ -32,15 +34,16 @@
 		else if($(NF-0) < cores)
 			$3=green$(NF-0)fresh
 		
-	;printf "%-50s %s %s %s\n",FILENAME,$1,$2,$3}' {} \;) 2>/dev/null || printf "\nNo Loadwatch Files found for Today\n"
+	;printf "%-50s %6s %6s %6s\n",FILENAME,$1,$2,$3}' {} \;) 2>/dev/null || printf "\nNo Loadwatch Files found for Today\n"
 
 ####################################################################################
 ######## One-Liner #################################################################
 ####################################################################################
+### just today ##
+(find /root/loadwatch/ /var/log/loadwatch/ -name "*$(date +%Y-%m-%d)*" -exec awk -F",| " -v cores=$(nproc) -v red="\033[31m" -v orange="\033[33m" -v green="\033[32m" -v fresh="\033[0m" '/^top.+load average/{if($(NF-4) > cores * 1.5)$1=red$(NF-4)fresh;else if($(NF-4) > cores && $(NF-4) <= cores * 1.5)$1=orange$(NF-4)fresh;else if($(NF-4) < cores)$1=green$(NF-4)fresh;if($(NF-2) > cores * 1.5)$2=red$(NF-2)fresh;else if($(NF-2) > cores && $(NF-2) <= cores * 1.5)$2=orange$(NF-2)fresh;else if($(NF-2) < cores)$2=green$(NF-2)fresh;if($(NF-0) > cores * 1.5)$3=red$(NF-0)fresh;else if($(NF-0) > cores && $(NF-0) <= cores * 1.5)$3=orange$(NF-0)fresh;else if($(NF-0) < cores)$3=green$(NF-0)fresh;printf "%-50s %s %s %s\n",FILENAME,$1,$2,$3}' {} \;) 2>/dev/null || printf "\nNo Loadwatch Files found for Today\n"
 
-(find /root/loadwatch/ /var/log/loadwatch/ -name "*$(date +%Y-%m-%d)*" -exec awk -v cores=$(nproc) -v red="\033[31m" -v orange="\033[33m" -v green="\033[32m" -v fresh="\033[0m" '/^top.+load average/{if($(NF-2) > cores * 1.5)$1=red$(NF-2)fresh;else if($(NF-2) > cores && $(NF-2) <= cores * 1.5)$1=orange$(NF-2)fresh;else if($(NF-2) < cores)$1=green$(NF-2)fresh;if($(NF-1) > cores * 1.5)$2=red$(NF-1)fresh;else if($(NF-1) > cores && $(NF-1) <= cores * 1.5)$2=orange$(NF-1)fresh;else if($(NF-1) < cores)$2=green$(NF-1)fresh;if($(NF-0) > cores * 1.5)$3=red$(NF-0)fresh;else if($(NF-0) > cores && $(NF-0) <= cores * 1.5)$3=orange$(NF-0)fresh;else if($(NF-0) < cores)$3=green$(NF-0)fresh;printf "%-50s %s %s %s\n",FILENAME,$1,$2,$3}' {} \;) 2>/dev/null || printf "\nNo Loadwatch Files found for Today\n"
-
-
+### today, or yesterday ##
+(find /root/loadwatch/ /var/log/loadwatch/ -name "*$(date +%Y-%m-%d)*" -o -name "*$(date -d yesterday +%Y-%m-%d)*" -exec awk -F",| " -v cores=$(nproc) -v red="\033[31m" -v orange="\033[33m" -v green="\033[32m" -v fresh="\033[0m" '/^top.+load average/{if($(NF-4) > cores * 1.5)$1=red$(NF-4)fresh;else if($(NF-4) > cores && $(NF-4) <= cores * 1.5)$1=orange$(NF-4)fresh;else if($(NF-4) < cores)$1=green$(NF-4)fresh;if($(NF-2) > cores * 1.5)$2=red$(NF-2)fresh;else if($(NF-2) > cores && $(NF-2) <= cores * 1.5)$2=orange$(NF-2)fresh;else if($(NF-2) < cores)$2=green$(NF-2)fresh;if($(NF-0) > cores * 1.5)$3=red$(NF-0)fresh;else if($(NF-0) > cores && $(NF-0) <= cores * 1.5)$3=orange$(NF-0)fresh;else if($(NF-0) < cores)$3=green$(NF-0)fresh;printf "%-50s %s %s %s\n",FILENAME,$1,$2,$3}' {} \;) 2>/dev/null || printf "\nNo Loadwatch Files found for Today\n"
 
 
 ####################################################################################

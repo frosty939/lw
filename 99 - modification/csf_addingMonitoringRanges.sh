@@ -21,6 +21,6 @@ else
 	
 	EOF
 	
-	printf "\n\n\e[0;33mThis is what the \e[0m[/etc/csf/csf.allow] \e[0;33mfile ends with now\e[;0m\n\n$(tail -9 $csfAllow)\n"
+	printf "\n\n\e[33mThis is what the \e[0m[/etc/csf/csf.allow] \e[33mfile ends with now\e[;0m\n\n$(tail -9 $csfAllow)\n"
 fi
 csf -ra

@@ -43,13 +43,28 @@ echo "Overall swap used: $OVERALL KB"
  done | grep kB | sort -k 3 -n)
 
 
- (for file in /proc/*/status ; do
- 	 awk '/Tgid|VmSwap|Name/{printf ("\n%-20s%-5s%s",$2,$3,$4,$5)}' $file;
-  done | grep kB | sort -k 3 -n)
+(for file in /proc/*/status ; do
+awk '/Tgid|VmSwap|Name/{printf ("\n%-20s%-5s%s",$2,$3,$4,$5)}' $file;
+done | grep kB | sort -k 3 -n)
 
 (for file in /proc/*/status ; do
 	awk '{printf "\n"$0}END{ print ""}' $file;
 done | grep kB | sort -k 3 -n)
+#-----------------------------------
+#-----------------------------------
+# almost there, but slow..
+(for file in /proc/*/status ; do 
+	awk -F: '/Tgid|VmSwap|Name/{printf ("%-20s",$2)}END{ print ""}' $file;
+ done | grep kB | sort -k 3 -n|sed 's/\t//g')
+#-----------------------------------
+#-----------------------------------
+# the backtracking.. gross.. but closer
+(for file in /proc/*/status ; do 
+	awk -F: '/Tgid|VmSwap|Name/{printf ("%-20s:",$2)}END{ print ""}' $file; 
+done | grep kB | sort -k 5 -n|sed -r 's/(:\s*)/:/g'|grep -v "0 kB"|column -s: -t)
 
-
+	#oneline of the above
+(for file in /proc/*/status;do awk -F: '/Tgid|VmSwap|Name/{printf ("%-20s:",$2)}END{ print ""}' $file;done|grep kB|sort -k 5 -n|sed -r 's/(:\s*)/:/g'|grep -v "0 kB"|column -s: -t)
+#-----------------------------------
+#-----------------------------------
 awk '/Tgid|VmSwap|Name/{printf ("%20s%s",$2,$3)}END{print ""}' /proc/3877/status
