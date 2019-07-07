@@ -1,5 +1,7 @@
 #!/bin/bash
-
+#--------------------------------
+# Created by: jParks
+#--------------------------------
 #Global Variables
 
 #Sets conf locations for variables used to reference the right location when using EA4 or EA3

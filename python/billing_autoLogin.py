@@ -15,7 +15,7 @@ with open('/home/wayne/.passwords/billing', 'r') as file:
 
 USER = "wboyer"
 #PASS = open('/home/wayne/.passwords/billing','r')
-UID = input('\nUID: ')
+UID = input('UID: ')
 
 # api-endpoint
 URL = "https://api.int.liquidweb.com/bleed/Billing/Subaccnt/details"

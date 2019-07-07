@@ -1,9 +1,24 @@
 #!/usr/bin/env python2
+#=======================================================================================
+#=== DESCIPTION ========================================================================
+#= Original by: dmcdermitt?
+#=======================================================================================
+	## 
+	## 
+	## 
+#=======================================================================================
+#=======================================================================================
+	#
+	#*************** NEED TO DO/ADD ***********************
+	# 
+	#******************************************************
+	#
+#///////////////////////////////////////////////////////////////////////////////////////
+#|||||||||||||||||||||||| Script Stuff Starts |||||||||||||||||||||||||||||||||||||||||
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 import sys, os, time, json
 import requests
-###Removed as it is no longer necessary (due to line 23)
-#import argparse
-###
+import argparse
 
 ## Severities
 # Uses zenoss scheme
@@ -21,22 +36,13 @@ RESOURCES = {'mwp-nagios': {
                  'interval': 30},
             }
 
-### Added a ignore list ###
-ignores=["liquidweb.com", 
-        "has been in Pending-Activation for"]
-###
+IGNORE_LIST = ["liquidweb.com","platform"]
 
-###Removed so that the ignore-nagios and cache_dir could be hardcoded
-#parser = argparse.ArgumentParser()
-#parser.add_argument('--ignore-nagios', dest="show_nagios", action='store_false')
-#parser.add_argument('cache_dir', default=CACHE_DIR, action='store')
-#args = parser.parse_args()
-#
-#if not args.show_nagios:
-#    del RESOURCES['mwp-nagios']
+parser = argparse.ArgumentParser()
+parser.add_argument('--ignore-nagios', dest="show_nagios", action='store_false')
+parser.add_argument('cache_dir', default=CACHE_DIR, action='store')
+args = parser.parse_args()
 del RESOURCES['mwp-nagios']
-cache_dir = 'http://support-n01.wc1.lan3.stabletransit.com/monitor_wide.json'
-####
 
 PODS = list(reversed(sorted(RESOURCES.keys())))
 
@@ -72,20 +78,19 @@ def presults(data, cache_location):
     print "Date: {0} ---- Cache location: {1}".format(
             time.strftime("%Y-%m-%d %H:%M"), cache_location)
     for resource in PODS:
+
         if resource == 'queuesize':
             continue
         events = data[resource].get('events', None)
-        ######Added by DNemcik to remove liquidweb.com from the array
-        for ignore in ignores:
-            i=0
-            length = len(events)
-            while(i<length):
-                if(ignore in events[i]['event']):
-                    events.remove (events[i])
-                    length = length -1
-                    continue
-                i = i+1
-        ######
+
+        try:
+            for i in range(len(events)):
+                for ignore in IGNORE_LIST:
+                    if events[i]['event'].find(str(ignore)) != -1:
+                        events.pop(i)
+        except:
+            pass
+
         if not events:
             print "{0}[{1} ({invl}s)]{2} - {3}All checks report OK!{2}".format(
                     termcolor.blue, resource, termcolor.severity[0],
@@ -94,22 +99,21 @@ def presults(data, cache_location):
         else:
             for event in events:
                 print "{0}[{1} ({invl}s)]{2} - {3}{4}{2}".format(
-                       termcolor.blue, resource, termcolor.severity[0],
-                       termcolor.severity[event['severity']], event['event'],
-                       termcolor.severity[0],
-                       invl=RESOURCES[resource]['interval'])
+                        termcolor.blue, resource, termcolor.severity[0],
+                        termcolor.severity[event['severity']], event['event'],
+                        termcolor.severity[0],
+                        invl=RESOURCES[resource]['interval'])
     return data
 
 if __name__ == '__main__':
-#    if len(sys.argv) > 1:
-#        cache_dir = sys.argv[1]
-#    else:
-#        cache_dir = CACHE_DIR
+    #if len(sys.argv) > 1:
+    #    cache_dir = sys.argv[1]
+    #else:
+    #    cache_dir = CACHE_DIR
     while True:
         try:
             os.system('clear')
-            main(cache_dir)
-#            main(args.cache_dir) ### Removed so that I can just pass the single argument
+            main(args.cache_dir)
         except (KeyboardInterrupt, Exception) as e:
             print "Application crashed/closed fixing stty"
             print e
