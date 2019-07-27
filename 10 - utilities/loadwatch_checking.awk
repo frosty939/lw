@@ -4,6 +4,7 @@
 ####################################################################################
 # need to fix the column width of the load values
 # need to sort the results.. completely random(ish) at this points
+# add dump of most recent alerts if none for today/yesterday are available (clearly labeled)
 ####################
 (find /root/loadwatch/ /var/log/loadwatch/ -name "*$(date +%Y-%m-%d)*" -o -name "*$(date -d yesterday +%Y-%m-%d)*" -exec awk \ 
 	-F",| " \

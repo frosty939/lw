@@ -9,7 +9,7 @@
 		# '/media/wayne/IcePick/-- TOOLS --/~ commands, scripts, tricks, etc/LW/scripts'
 		#===add
 		# syncing of scripts to test vm(s)
-		# drop into tmux session
+		# ("done" via backupStart.sh script) drop into tmux session
 		# existing backups && if zipped up (except the newest)
 		# timer && failure checking
 		# current log rotate
@@ -38,9 +38,10 @@
 #### RUN function #################
 ###################################
 function main(){				###
-	#backupHome		#||	exit 10	###
+	backupHome		#||	exit 10	###
 	pullIcePick		#||	exit 20	###
 	dailyNotes		#||	exit 30	###
+	roomba			#|| exit 40 ###
 #	timepiece		#||	exit 99	###
 }								###
 ###################################
@@ -71,9 +72,9 @@ source /etc/bashrc
 #####  ╦ ╦┌─┐┌┬┐┌─┐  ############################################################
 #####  ╠═╣│ ││││├┤   ############################################################
 #####  ╩ ╩└─┘┴ ┴└─┘  ############################################################
+# backing up all important home dir stuff (hopefully) ###########################
 #################################################################################
-# backing up all important home dir stuff (hopefully)
-#--------------------------------------------------------------------------------
+
 function backupHome(){
 	if [[ -d /media/wayne/backups ]]; then
 		local backupTime="$(date +"%Y%m%d_%H")"
@@ -105,12 +106,12 @@ function backupHome(){
 #####  ╦┌─┐┌─┐╔═╗┬┌─┐┬┌─  #######################################################
 #####  ║│  ├┤ ╠═╝││  ├┴┐  #######################################################
 #####  ╩└─┘└─┘╩  ┴└─┘┴ ┴  #######################################################
+# pulling any new stuff from IcePick to /home/wayne/scriptsB ####################
 #################################################################################
-# pulling any new stuff from IcePick to /home/wayne/scriptsB
-#--------------------------------------------------------------------------------
+
 function pullIcePick(){
 ## making sure IcePick is attached before wasting time
-	if [[ -d /media/wayne/IcePick ]]; then
+	if [[ -d /media/wayne/IcePick/PortableApps ]]; then
 		#rLog_IcePick="/var/log/backupIcePick.log"
 		rLog_IcePick="/home/wayne/logs/backupIcePick.log"
 		#had to be done this way(?) making the path names hard to navigate made them... hard to navigate >.>
@@ -138,9 +139,9 @@ function pullIcePick(){
 #####  ╔╦╗┬┌┬┐┌─┐┌─┐┬┌─┐┌─┐┌─┐  #################################################
 #####   ║ ││││├┤ ├─┘│├┤ │  ├┤   #################################################
 #####   ╩ ┴┴ ┴└─┘┴  ┴└─┘└─┘└─┘  #################################################
+# checks when syncs last ran, if successful, then runs when it should ###########
 #################################################################################
-# checks when syncs last ran, if successful, then runs when it should
-#--------------------------------------------------------------------------------
+
 function timepiece(){
 :
 }
@@ -149,8 +150,9 @@ function timepiece(){
 ######  ┌┬┐┌─┐┬┬ ┬ ┬╔╗╔┌─┐┌┬┐┌─┐┌─┐  ############################################
 ######   ││├─┤││ └┬┘║║║│ │ │ ├┤ └─┐  ############################################
 ######  ─┴┘┴ ┴┴┴─┘┴ ╝╚╝└─┘ ┴ └─┘└─┘  ############################################
+# moves my daily notes for tickets and whatnot into it's own folder #############
 #################################################################################
-# moves my daily notes for tickets and whatnot into it's own folder
+
 function dailyNotes() {
 	
 	
@@ -174,6 +176,26 @@ function dailyNotes() {
 	
 	
 }
+
+
+#################################################################################
+######  ┬─┐┌─┐┌─┐┌┬┐┌┐ ┌─┐  #####################################################
+######  ├┬┘│ ││ ││││├┴┐├─┤  #####################################################
+######  ┴└─└─┘└─┘┴ ┴└─┘┴ ┴  #####################################################
+# cleans up rando  tash files that accumulate each day ##########################
+#################################################################################
+
+function roomba() {
+	### Purging rando ipmi applet files leftover ###
+	find /home/wayne/Downloads/ -maxdepth 1 -type f \( -name "*.jnlp" -or -name "?nconfirmed*.crdownload" \) -delete
+}
+
+
+
+
+
+
+
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++ FIGHT!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++

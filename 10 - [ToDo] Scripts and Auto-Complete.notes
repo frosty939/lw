@@ -29,14 +29,6 @@ https://billing.int.liquidweb.com/mysql/content/admin/api/internal/docs/bleed/in
 
 
 =================================================
-------------------- hotkeys ---------------------
-=================================================
-	### monshot take screenshot ###
-		#or use xdotool maybe?
-
-	### check for sonar ###
-
-=================================================
 -------------- Quick Responses ------------------
 =================================================
 	### Replication + Creds ###
