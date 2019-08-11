@@ -41,7 +41,9 @@ RESOURCES = {'mwp-nagios': {
 
 ### Added a ignore list ###
 ignores=["liquidweb.com", 
-        "has been in Pending-Activation for"]
+        "has been in Pending-Activation for",
+		"5xx",
+		"1804-upgrade-old"]
 ###
 
 ###Removed so that the ignore-nagios and cache_dir could be hardcoded

@@ -38,7 +38,7 @@
 #### RUN function #################
 ###################################
 function main(){				###
-	backupHome		#||	exit 10	###
+	# backupHome		#||	exit 10	###
 	pullIcePick		#||	exit 20	###
 	dailyNotes		#||	exit 30	###
 	roomba			#|| exit 40 ###
@@ -139,7 +139,8 @@ function pullIcePick(){
 #####  ╔╦╗┬┌┬┐┌─┐┌─┐┬┌─┐┌─┐┌─┐  #################################################
 #####   ║ ││││├┤ ├─┘│├┤ │  ├┤   #################################################
 #####   ╩ ┴┴ ┴└─┘┴  ┴└─┘└─┘└─┘  #################################################
-# checks when syncs last ran, if successful, then runs when it should ###########
+# checks when syncs last ran, if successful, and if it should be moved ##########
+# (meaning it'll move backups based ona a schedule. monthly, weekly, etc.) ######
 #################################################################################
 
 function timepiece(){
@@ -154,8 +155,6 @@ function timepiece(){
 #################################################################################
 
 function dailyNotes() {
-	
-	
 	###
 	if [[ -d /media/wayne/ ]]; then
 		### variables

@@ -6,26 +6,43 @@
 
 
 ### Colors defined ###
-end="\033[0m"
-black="\033[0;30m"
-blackb="\033[1;30m"
-white="\033[0;37m"
-whiteb="\033[1;37m"
-red="\033[0;31m"
-redb="\033[1;31m"
-green="\033[0;32m"
-greenb="\033[1;32m"
-yellow="\033[0;33m"
-yellowb="\033[1;33m"
-blue="\033[0;34m"
-blueb="\033[1;34m"
-purple="\033[0;35m"
-purpleb="\033[1;35m"
-lightblue="\033[0;36m"
-lightblueb="\033[1;36m"
-
+# Underline 	\033[4;##m
+# Italic		\033[3;##m
+# Background	\033[4#m
+#----- Font Color ------#---------------- BOLD Font Color -------#
+	black="\033[0;30m"			;		blackb="\033[1;30m"
+	white="\033[0;37m"			;		whiteb="\033[1;37m"
+	red="\033[0;31m"			;		redb="\033[1;31m"
+	green="\033[0;32m"			;		greenb="\033[1;32m"
+	yellow="\033[0;33m"			;		yellowb="\033[1;33m"
+	blue="\033[0;34m"			;		blueb="\033[1;34m"
+	purple="\033[0;35m"			;		purpleb="\033[1;35m"
+	lightblue="\033[0;36m"		;		lightblueb="\033[1;36m"
+# Clearing the color
+	end="\033[0m"
 
 ### functions start ###
+#---------- Font Color ---------------------------------#---------------- Text Background ------------------------------#
+function black		{ printf "${black}${1}${end}";		};	function blackb		{ printf "${blackb}${1}${end}";		}
+function white		{ printf "${white}${1}${end}";		};	function whiteb		{ printf "${whiteb}${1}${end}";		}
+function red		{ printf "${red}${1}${end}";		};	function redb		{ printf "${redb}${1}${end}";		}
+function green		{ printf "${green}${1}${end}";		};	function greenb		{ printf "${greenb}${1}${end}";		}
+function yellow		{ printf "${yellow}${1}${end}";		};	function yellowb	{ printf "${yellowb}${1}${end}";	}
+function blue 		{ printf "${blue}${1}${end}";		};	function blueb 		{ printf "${blueb}${1}${end}";		}
+function purple 	{ printf "${purple}${1}${end}";		};	function purpleb 	{ printf "${purpleb}${1}${end}";	}
+function lightblue	{ printf "${lightblue}${1}${end}";	};	function lightblueb	{ printf "${lightblueb}${1}${end}";	}
+
+### EXAMPLE
+# You want to color the phrase "leet hax" red
+red "leet hax\n"
+
+
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+### functions start Original ###
 function black {
   echo -e "${black}${1}${end}"
 }
@@ -92,7 +109,7 @@ function lightblueb {
 
 
 ##############
-# can't seem to make it work
+# can't seem to make it work (pretty sure these are the awk specific ones)
 ##############
 
 function  BLACK(X)             { return "\033[30m"   X "\033[0m" }

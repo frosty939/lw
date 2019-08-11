@@ -75,14 +75,14 @@ function main(){		###
 ######  ╚═╝└─┘└─┘┴ ┴┴└─┘╩ ╩└─┘┘└┘└─┘ ┴ └─┘┴└─  ############################################
 # FUNCTION1 description ###################################################################
 ###########################################################################################
-function cookieMonster(){
-	userName=
-	password=
-	
-	userAgent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53maildb.hmp1.com7.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
-	#### Site Probing ############################
-	curl -H "${userAgent}" thesus.work
-	}
+# function cookieMonster(){
+# 	userName=
+# 	password=
+# 
+# 	userAgent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53maildb.hmp1.com7.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
+# 	#### Site Probing ############################
+# 	curl -H "${userAgent}" thesus.work
+# 	}
 ###########################################################################################
 ######  ┌─┐┌─┐┌┬┐┬ ┬┌─┐┬─┐╔═╗┬  ┌─┐┬─┐┌┬┐╦┌┐┌┌─┐┌─┐  ######################################
 ######  │ ┬├─┤ │ ├─┤├┤ ├┬┘╠═╣│  ├┤ ├┬┘ │ ║│││├┤ │ │  ######################################
@@ -95,14 +95,13 @@ function gatherAlertInfo(){
 	##echo "What UUID?"; read UUID; curl -Gs 'http://10.30.9.222:9090/api/v1/query' --data-urlencode "query=ALERTS" | jq --arg UUID "$UUID" '.data.result[] | {uniq_id: .metric.uniq_id, instance: .metric.instance, policy_description: .metric.policy_description, disksafe_description: .metric.disksafe_description, alertname: .metric.alertname, alertstate: .metric.alertstate} | select(.uniq_id == $UUID)'
 	############################
 	while :;do
-		sleep 1;
+		printf "%70s\n" | tr " " "="
 		read -n6 -p "UUID: " UUID;
 		curl -Gs 'http://10.30.9.222:9090/api/v1/query' --data-urlencode "query=ALERTS" \
 			| jq --arg UUID "$UUID" '.data.result[] | {uniq_id: .metric.uniq_id, instance: .metric.instance, policy_description: .metric.policy_description, disksafe_description: .metric.disksafe_description, alertname: .metric.alertname, alertstate: .metric.alertstate} | select(.uniq_id == $UUID)' \
 				| sed 's/["}{,]//g' \
 				| awk 'NFS=":"{printf "%25s  %s\n",$1,$2}' \
 				| sed -E 's|(.+instance:[[:space:]]+)(.+):9100|\1https:\/\/\2\/Agent|'
-		echo
 	done
 	#### PART 1 ############################
 	

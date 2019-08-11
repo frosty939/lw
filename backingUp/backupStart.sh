@@ -5,5 +5,5 @@
 ################################################################################################################
 
 cd /home/wayne
-tmux kill-session -t backupTmux
+tmux kill-session -t backupTmux || \
 tmux new-session -d -s backupTmux 'bash --init-file /home/wayne/scriptsB/backingUp/backupMain.sh'
