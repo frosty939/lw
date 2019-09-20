@@ -34,6 +34,7 @@ function lightblue	{ printf "${lightblue}${1}${end}";	};	function lightblueb	{ p
 
 ### EXAMPLE
 # You want to color the phrase "leet hax" red
+# (if you want it to include multiple arguments, change "1" to "@" in the functions)
 red "leet hax\n"
 
 

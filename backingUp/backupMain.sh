@@ -74,7 +74,6 @@ source /etc/bashrc
 #####  ╩ ╩└─┘┴ ┴└─┘  ############################################################
 # backing up all important home dir stuff (hopefully) ###########################
 #################################################################################
-
 function backupHome(){
 	if [[ -d /media/wayne/backups ]]; then
 		local backupTime="$(date +"%Y%m%d_%H")"
@@ -108,7 +107,6 @@ function backupHome(){
 #####  ╩└─┘└─┘╩  ┴└─┘┴ ┴  #######################################################
 # pulling any new stuff from IcePick to /home/wayne/scriptsB ####################
 #################################################################################
-
 function pullIcePick(){
 ## making sure IcePick is attached before wasting time
 	if [[ -d /media/wayne/IcePick/PortableApps ]]; then
@@ -142,7 +140,6 @@ function pullIcePick(){
 # checks when syncs last ran, if successful, and if it should be moved ##########
 # (meaning it'll move backups based ona a schedule. monthly, weekly, etc.) ######
 #################################################################################
-
 function timepiece(){
 :
 }
@@ -153,10 +150,9 @@ function timepiece(){
 ######  ─┴┘┴ ┴┴┴─┘┴ ╝╚╝└─┘ ┴ └─┘└─┘  ############################################
 # moves my daily notes for tickets and whatnot into it's own folder #############
 #################################################################################
-
 function dailyNotes() {
 	###
-	if [[ -d /media/wayne/ ]]; then
+	if [[ -d /media/wayne/IcePick ]]; then
 		### variables
 		src_IcePick_dailyNotes="/media/wayne/IcePick/-- TOOLS --/~ commands, scripts, tricks, etc/LW/tempNotes.d/"
 		dst_IcePick_dailyNotes="/media/wayne/IcePick/-- TOOLS --/~ commands, scripts, tricks, etc/LW/tempNotes.d/notTodays/$(date +%Y-%m-%d)/"
@@ -183,7 +179,6 @@ function dailyNotes() {
 ######  ┴└─└─┘└─┘┴ ┴└─┘┴ ┴  #####################################################
 # cleans up rando  tash files that accumulate each day ##########################
 #################################################################################
-
 function roomba() {
 	### Purging rando ipmi applet files leftover ###
 	find /home/wayne/Downloads/ -maxdepth 1 -type f \( -name "*.jnlp" -or -name "?nconfirmed*.crdownload" \) -delete
@@ -200,4 +195,4 @@ function roomba() {
 #+++++++++++++++++++++++++++++++++ FIGHT!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-main || echo "[$(date +%Y-%m%d)] superFail" >> /tmp/backupLog
+main || echo "[$(date +%Y-%m%d)] superFail" >> /home/wayne/logs/backupLog.error

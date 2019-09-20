@@ -1,30 +1,16 @@
 #!/bin/bash
-#doom
-#                 _       _
-#                (_)     | |
-#   ___  ___ _ __ _ _ __ | |_
-#  / __|/ __| '__| | '_ \| __|
-#  \__ \ (__| |  | | |_) | |_
-#  |___/\___|_|  |_| .__/ \__|
-#                  | |
-#                  |_|
-#ANSI shadow
-#  ███╗   ██╗ █████╗ ███╗   ███╗███████╗
-#  ████╗  ██║██╔══██╗████╗ ████║██╔════╝
-#  ██╔██╗ ██║███████║██╔████╔██║█████╗
-#  ██║╚██╗██║██╔══██║██║╚██╔╝██║██╔══╝
-#  ██║ ╚████║██║  ██║██║ ╚═╝ ██║███████╗
-#  ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝
 #=======================================================================================
 #=== DESCIPTION ========================================================================
 #=======================================================================================
-	## 
-	##
+# Created by:	Wayne Boyer
+#=======================================================================================
+	### Lets you drop in a UID and get back alert info
+	## includes direct link to /Agent page
 	## 
 	## 
 #=======================================================================================
 #=======================================================================================
-	## https://ask.metafilter.com/18923/How-do-you-handle-authentication-via-cookie-with-CURL
+	#### https://ask.metafilter.com/18923/How-do-you-handle-authentication-via-cookie-with-CURL
 	##	## curl -d "username=miniape&password=SeCrEt" http://whatever.com/login
 	## and if you want to store the cookie that comes back you do so by specifying a cookie file:
 	## 	## curl -c cookies.txt -d "username=miniape&password=SeCrEt" http://whatever.com/login
@@ -40,6 +26,12 @@
 	#*************** NEED TO DO/ADD ***********************
 	# 
 	#******************************************************
+	##### RAW API CALLS #####
+	### ALL Alerts
+	#	curl -Gs 'http://10.30.9.222:9090/api/v1/query' --data-urlencode "query=ALERTS"
+	### Policy State
+	#(from dev node?)
+	#	 curl -Gs http://vip.historical.pro.mon.dev.liquidweb.com:9090/api/v1/query --data 'query=guardian_policy_state{uniq_id="7MDUZ6"}'
 	#
 #///////////////////////////////////////////////////////////////////////////////////////
 #|||||||||||||||||||||||| Script Stuff Starts |||||||||||||||||||||||||||||||||||||||||
@@ -73,7 +65,7 @@ function main(){		###
 ######  ╔═╗┌─┐┌─┐┬┌─┬┌─┐╔╦╗┌─┐┌┐┌┌─┐┌┬┐┌─┐┬─┐  ############################################
 ######  ║  │ ││ │├┴┐│├┤ ║║║│ ││││└─┐ │ ├┤ ├┬┘  ############################################
 ######  ╚═╝└─┘└─┘┴ ┴┴└─┘╩ ╩└─┘┘└┘└─┘ ┴ └─┘┴└─  ############################################
-# FUNCTION1 description ###################################################################
+# looks like we dont use api tokens and can't use cookies #################################
 ###########################################################################################
 # function cookieMonster(){
 # 	userName=
@@ -97,14 +89,19 @@ function gatherAlertInfo(){
 	while :;do
 		printf "%70s\n" | tr " " "="
 		read -n6 -p "UUID: " UUID;
-		curl -Gs 'http://10.30.9.222:9090/api/v1/query' --data-urlencode "query=ALERTS" \
+		sleep 0.02
+		results=$(curl -Gs 'http://10.30.9.222:9090/api/v1/query' --data-urlencode "query=ALERTS" \
 			| jq --arg UUID "$UUID" '.data.result[] | {uniq_id: .metric.uniq_id, instance: .metric.instance, policy_description: .metric.policy_description, disksafe_description: .metric.disksafe_description, alertname: .metric.alertname, alertstate: .metric.alertstate} | select(.uniq_id == $UUID)' \
 				| sed 's/["}{,]//g' \
 				| awk 'NFS=":"{printf "%25s  %s\n",$1,$2}' \
-				| sed -E 's|(.+instance:[[:space:]]+)(.+):9100|\1https:\/\/\2\/Agent|'
-	done
-	#### PART 1 ############################
-	
+				| sed -E 's|(.+instance:[[:space:]]+)(.+):9100|\1https:\/\/\2\/Agent|')
+				
+		if [ "$results" != "" ];then
+			echo "$results"
+		else
+			printf "\n\t\033[34mNo Guardian Alerts detected\033[m\n"
+		fi
+	done	
 	}
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++ FIGHT!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++

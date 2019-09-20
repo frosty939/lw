@@ -12,6 +12,7 @@
 	# Test performance of one giant `echo -e`/`print` vs calling it each time
 	# Add dupe checks for the fwd rules
 	# if csf rules are installed, restart with `csf -ra`
+	# add cpHulk check/fixes
 	#******************************************************
 	#
 

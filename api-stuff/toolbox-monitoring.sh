@@ -19,6 +19,8 @@
 #=======================================================================================
 #=== DESCIPTION ========================================================================
 #=======================================================================================
+# Created by:	Wayne Boyer
+#=======================================================================================
 	### (This has been slowly morphing as I progress, likely going to end up a "Monitoring Toolbox" instead)
 	## Grabs the list of UIDs from radar (or from a file)
 	## Turns them into account numbers
@@ -39,11 +41,16 @@
 	# Validate disabled (should probably avoid, for now, to limit api calling?)
 	# reduce number of API calls. just need to recall from array
 	# NEED MOAR VALIDATION. UBER SAUCE DANGER-ZONE
+	### FANCY
+	# Temporary (timed) disabling of monitoring [SUPER LOGS REQUIRED]
+	# Time checks to determine the most efficient order to check (example: ~0600-0800 = check suspension | !~0600-0800 = check teardown)
 	### MISC
+	# fix the janky curlCMD here doc nonsense
 	# Expand into a full suite of monitoring tools?
 	# Set Monitoring to: Un-Managed / Managed / Fully-Managed
 	# Enable/Disable monitoring for speciifc serivces
 	# Switch monitoring nodes
+	# colorizing functions instead
 	#******************************************************
 	#
 #///////////////////////////////////////////////////////////////////////////////////////
@@ -92,15 +99,15 @@ function radarPinging(){
 	# uidList="LGRRA1"			#Tear-Down Asset
 	
 		
-	#### PART 2(a) ############################
+	#### PART 2 ############################
 	### Deciding how to proceed, dependant on if/what argument is presented at launch ###
-	# switching to `case` would probably make more sense
+	# switching to `case` would probably make more sense..
 	#------------------------------------------------------------------------------------
-	
+# lets you manually check if a UID should be disabled
 	if [ "$1" == "" ]; then
 		## input them one at a time to "manually" check and disable monitoring
 		while :; do
-			sleep 0.2
+			sleep 0.1
 			read -n6 -p "Check and Disable Monitoring (Radar & Nagios/Prom) for UID: " uid
 				# printf "\nDisable Monitoring (Radar & Nagios/Prom) for UID: "
 				# read -n6 uid
@@ -108,7 +115,8 @@ function radarPinging(){
 			meatGrinder $uid
 		done
 		
-	elif [ "$1" == "a" ]; then
+# scans radar for accounts that should be suspended
+	elif [ "$1" == "a" ] || [ "$1" == "all" ]; then
 		### Building the uidList based on those active in radar ###
 		## grabs the radar page, filtering out just the UIDs (probably fails under certain conditions)
 		echo "Gathering UID list from Mr. Radar"
@@ -120,32 +128,36 @@ function radarPinging(){
 			done
 		fi
 		
+# disables monitoring in nagios/radar without checking anything
 	elif [ $1 == "disable" ]; then
 		while :;do
-			sleep 0.2
+			sleep 0.1
 			printf "\nDisabling Monitoring (Radar & Nagios/Prom) \033[31mWITHOUT\033[0m checking status. Be Certain.\nUID: "
 			read -n6 uid
 			printf "\n"
 			bombingRaid $uid
 		done
+		
+# disables monitoring for S services we dont monitor
+	elif [ $1 == "s" ]; then
+		while :;do
+			sleep 0.1
+			printf "\nDisabling S Services we don\'t monitor.\nUID: "
+			read -n6 uid
+			printf "\n"
+			payloadSservices $uid
+		done
 
+# switch to (and enable) prom, then disable nagios
+elif [ $1 == "t" ] || [ $1 == "toggle" ]; then
+		# while :;do
+			sleep 0.1
+			printf "\nConvert to Prom and disable Nagios.\nUID: "
+			read -n6 uid
+			printf "\n"
+			payloadPromToggle $uid
+		# done
 	fi
-
-	#### PART 2(b) ############################
-	
-	
-	## lets you just input them one at a time to quickly manually check
-	# while :; do
-	# 	sleep 0.5
-	# 	read -s -n6 -p "UID: " uid
-	# 		echo $uid
-	# 			### Turning the UID in an Account Number ###			
-	# 				curlCMD	https://api.int.liquidweb.com/bleed/Billing/Subaccnt/details uniq_id $uid .accnt
-	# 			### Checking is Account Number is Suspended ###
-	# 				curlCMD https://api.int.liquidweb.com/bleed/Billing/Account/details accnt $cmdOutput .account_status
-	# 			### Printing result ###
-	# 				printf "\nUID: $uid\nStatus: \033[32m$cmdOutput\033[0m\n"
-	# done
 }
 
 
@@ -158,53 +170,49 @@ function radarPinging(){
 function meatGrinder(){
 # Need to break this into a more easily customizable format #
 #############################################################
-	### Turning the UID in an Account Number ###			
-		curlCMD	https://api.int.liquidweb.com/bleed/Billing/Subaccnt/details uniq_id $1 .accnt
+	### Turning the UID into an Account Number ###			
 		#saving the Account Number
-		uidToAccnt=$cmdOutput
+		uidToAccnt=$(curlCMD https://api.int.liquidweb.com/bleed/Billing/Subaccnt/details uniq_id $1 .accnt)
 	### Checking if Account Number is Suspended ###
-		curlCMD https://api.int.liquidweb.com/bleed/Billing/Account/details accnt $uidToAccnt .account_status
 		#saving the suspension check results
-		chkSuspend=$cmdOutput
-	### Checking if Account Number is TOSViolation ###
-		curlCMD https://api.int.liquidweb.com/bleed/Billing/Account/traits accnt $uidToAccnt .traits
-		#saving the TOSViolation check results
-		chkTOSViol="$((echo $cmdOutput|grep -o TOSViolation)||echo active)"
+		chkSuspend=$(curlCMD https://api.int.liquidweb.com/bleed/Billing/Account/details accnt $uidToAccnt .account_status)
 	### Checking if Asset is in Tear-Down ###
-		curlCMD https://api.int.liquidweb.com/bleed/Billing/Subaccnt/details uniq_id $1 .activeStatus,.status
-		#saving the Tear-Down check results
-		chkTeardown="$((echo "$cmdOutput"|grep -m1 Termination)||echo active)"
+		if [ "$chkSuspend" != "suspended" ]; then
+			curlCMD https://api.int.liquidweb.com/bleed/Billing/Subaccnt/details uniq_id $1 .activeStatus,.status 
+			#saving the Tear-Down check results
+			chkTeardown="$( (echo "$cmdOutput"|grep -m1 Termination)||echo active)"
+		### Checking if Account Number is TOSViolation ###
+			if ! grep ermination <<< $chkTeardown ; then
+				curlCMD https://api.int.liquidweb.com/bleed/Billing/Account/traits accnt $uidToAccnt .traits 
+				#saving the TOSViolation check results
+				chkTOSViol="$( (echo $cmdOutput|grep -o TOSViolation)||echo active)"
+			fi
+		fi
 
-#??? testing ???#
-echo " UID to Account: $uidToAccnt"
-echo "Suspended Check: $chkSuspend"
-echo "      TOS Check: $chkTOSViol"
-echo " Teardown Check: $chkTeardown"
 
-
-
-	### Colorizing Suspended/TOSViolation/Tear-Down Accounts/Assets ###
-		# if [ "$chkSuspend" == "suspended" ]; then
-		# 	printf "\n\n   UID: $1\nStatus: \033[32m$chkSuspend\033[0m\n"
-		# 	## Disabling Nagios Monitoring
-		# 	payloadNagios $uid
-		# 	## Disabling Radar Monitoring
-		# 	payloadRadar $uid
-		# elif [ "$chkTOSViol" == "TOSViolation" ]; then
-		# 	printf "\n\n   UID: $1\nStatus: \033[32m$chkTOSViol\033[0m\n"
-		# 	## Disabling Nagios Monitoring
-		# 	payloadNagios $uid
-		# 	## Disabling Radar Monitoring
-		# 	payloadRadar $uid
-		# elif grep Termination <<< $chkTeardown; then
-		# 	printf "\n\n   UID: $1\nStatus: \033[32m$chkTeardown\033[0m\n"
-		# 	## Disabling Nagios Monitoring
-		# 	payloadNagios $uid
-		# 	## Disabling Radar Monitoring
-		# 	payloadRadar $uid
-		# else
-		# 	printf "Clean UID: $1\n"
-		# fi
+	### Disabling Monitoring, if needed ###
+	## Colorizing Suspended/TOSViolation/Tear-Down Accounts/Assets ##
+		if [ "$chkSuspend" == "suspended" ]; then
+			printf "\n\n   UID: $1\nStatus: \033[32m$chkSuspend\033[0m\n"
+			## Disabling Nagios Monitoring
+			payloadNagios $uid
+			## Disabling Radar Monitoring
+			payloadRadar $uid
+		elif [ "$chkTOSViol" == "TOSViolation" ]; then
+			printf "\n\n   UID: $1\nStatus: \033[32m$chkTOSViol\033[0m\n"
+			## Disabling Nagios Monitoring
+			payloadNagios $uid
+			## Disabling Radar Monitoring
+			payloadRadar $uid
+		elif grep Termination <<< $chkTeardown >/dev/null; then
+			printf "\n\n   UID: $1\nStatus: \033[32m$chkTeardown\033[0m\n"
+			## Disabling Nagios Monitoring
+			payloadNagios $uid
+			## Disabling Radar Monitoring
+			payloadRadar $uid
+		else
+			printf "Clean UID: $1\n"
+		fi
 }
 
 ###########################################################################################
@@ -222,11 +230,11 @@ function curlCMD(){
 		
 	### Building the actual command to hit the API ###
 		cmdBase="$(cat <<- EOF
-			curl -u $userName:$password
+			curl --silent -u $userName:$password
 			EOF
 			)"
 		cmdURL="$(cat <<- EOF
-			--silent $apiURL
+			$apiURL
 			EOF
 			)"
 		cmdData="$(cat <<- EOF
@@ -249,6 +257,20 @@ function curlCMD(){
 
 
 ###########################################################################################
+######  ┌┬┐┬┌┬┐┌─┐┌─┐┬ ┬┌┬┐  ##############################################################
+######   │ ││││├┤ │ ││ │ │   ##############################################################
+######   ┴ ┴┴ ┴└─┘└─┘└─┘ ┴   ##############################################################
+# Temporary disable monitoring for a list, or individual UID ##############################
+###########################################################################################
+function timeout(){
+	# Defintes delinquent UIDs and their timeout
+	#checks the log for any delinquent UIDs
+	# badKids="/var/log/monitoringTimeout.list"
+	:
+}
+
+
+###########################################################################################
 ######  ┬  ┌─┐┬ ┬┌┐┌┌─┐┬ ┬╔╗ ┌─┐┬ ┬  ######################################################
 ######  │  ├─┤│ │││││  ├─┤╠╩╗├─┤└┬┘  ######################################################
 ######  ┴─┘┴ ┴└─┘┘└┘└─┘┴ ┴╚═╝┴ ┴ ┴   ######################################################
@@ -261,13 +283,16 @@ function bombingRaid(){			#
 	payloadNagios 	$1			#
 }								#
 #################################
+	#+++++++++++++++++++++++++++++++++
 	### Disabling Radar Monitoring ###
+	#+++++++++++++++++++++++++++++++++
 	function payloadRadar(){
 		curlCMD https://api.int.liquidweb.com/bleed/Monitoring/Sonar/disable uniq_id $1
-		printf "\t[\033[31mDisabling\033[0m] Radar  Monitoring\n"
+		printf "\t[\033[31mDisabled\033[0m] Radar  Monitoring\n"
 	}	
-
+	#+++++++++++++++++++++++++++++++++++++++
 	### Disabling Prom/Nagios Monitoring ###
+	#+++++++++++++++++++++++++++++++++++++++
 	function payloadNagios(){
 		## Switching back and forth appears to be necessary ##
 		######################################################
@@ -280,14 +305,62 @@ function bombingRaid(){			#
 		#disables monitoring for whichever monitoring system is in use (though both use nagios link)
 			curlCMD https://api.int.liquidweb.com/bleed/Monitoring/Nagios/disable uniq_id $1
 		
+		printf "\t[\033[31mDisabled\033[0m] Nagios Monitoring\n"
+	}
+	#+++++++++++++++++++++++++++++++++++++++++
+	### Disables Monitoring for S Services ###
+	#+++++++++++++++++++++++++++++++++++++++++
+	function payloadSservices(){
+		printf "\t[Disabling] \033[34mS\033[0m services\n"
+		curl --silent \
+			-u ${userName}:${password} \
+			-H "Content-Type: application/json" \
+			-H "Accept: application/json" \
+			-X POST \
+			--data "{\"params\":{\"subaccnt\":\"$1\",\"enabled\":1,\"services\":[
+			{\"name\":\"cpanels\",\"enabled\":0},
+			{\"name\":\"ftps\",\"enabled\":0},
+			{\"name\":\"https\",\"enabled\":0},
+			{\"name\":\"imaps\",\"enabled\":0},
+			{\"name\":\"pop3s\",\"enabled\":0}
+			]}}" \
+			https://api.int.liquidweb.com/bleed/Asset/Monitoring/assert >/dev/null
+	}
+	#++++++++++++++++++++++++++++++++++++++++++++
+	### Enable Prom, Disable Nagios, & Toggle ###
+	#++++++++++++++++++++++++++++++++++++++++++++
+	function payloadPromToggle(){
+		printf "\t[Convert] Nagios to \033[34mProm\033[0m\n"
+		#checking what is currently being used
+		curlCMD https://api.int.liquidweb.com/bleed/Asset/Monitoring/details subaccnt $uid
+		# echo $cmdOutput
+		targetStatus=$(  jq -r '.enabled'			<<< $cmdOutput)
+		targetMonNode=$( jq -r '.server_pair'		<<< $cmdOutput)
+		targetLocation=$(jq -r '.labels .Location'	<<< $cmdOutput)
+		targetOutput="$( jq .						<<< $cmdOutput)"
+		printf "  Status: $targetStatus\n"
+		printf "Mon Type: $targetMonNode\n"
+		printf "Location: $targetLocation\n"
+		# printf "\n---\nComplete Output:\n$targetOutput"
 		
-		printf "\t[\033[31mDisabling\033[0m] Nagios Monitoring\n"
+		## checking type and deciding what to do next
+		if grep null <<< $targetMonNode ;then
+			#(if targetMonNode returns "null", its most likely on nagios)
+			printf "\n\n$uid is on \033[31mNagios\033[0m\n\n"
+			#+convert to prom
+			#+check prom is enabled
+		elif [[ "$targetStatus" == "true" ]] ;then
+			#(if it returns a prom server pair AND is "enabled" is should be ready)
+			printf "\n\n$uid is on \033[34mProm\033[0m and is enabled\n\n"
+			#+check is building and prom nodes match, if not. scream
+			#+convert to nagios
+			#+convert back to prom
+			#+confirm monitoring is set to prom and is enabled
+		fi
 	}
 	
-	
-	
-	
-	
+
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++ FIGHT!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

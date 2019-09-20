@@ -14,11 +14,12 @@ with open('/home/wayne/.passwords/billing', 'r') as file:
 	PASS	=	file.read().replace('\n', '')
 
 USER = "wboyer"
-#PASS = open('/home/wayne/.passwords/billing','r')
+
 UID = input('UID: ')
 
 # api-endpoint
-URL = "https://api.int.liquidweb.com/bleed/Billing/Subaccnt/details"
+URL = "https://api.int.liquidweb.com/bleed/Billing/Subaccnt/Auth/details"
+#URL = "https://api.int.liquidweb.com/bleed/Billing/Subaccnt/details"
 
 # sending get request and saving the response as response object
 r = requests.post(url=URL,auth=(USER,PASS),json={"params":{"uniq_id":UID}})
